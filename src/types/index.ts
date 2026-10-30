@@ -76,7 +76,7 @@ export interface Review {
   createdAt: string;
 }
 
-export type LiorahPackageTier = 'express' | 'basic' | 'interactive' | 'animated_video';
+export type LiorahPackageTier = 'express' | 'basic' | 'clasica' | 'interactive' | 'animated_video';
 
 export interface LiorahPackageInfo {
   id: LiorahPackageTier;
@@ -97,7 +97,6 @@ export function formatPriceEquivalents(arsAmount: number): {
   combined: string;
 } {
   // Conversión aproximada oficial para LIORAH STUDIO:
-  // Base invitacion web: $60.000 ARS ≈ $50 USD · $990 MXN
   const usdAmount = Math.max(1, Math.round(arsAmount / 1200));
   const mxnAmount = Math.round(usdAmount * 19.8);
 
@@ -140,22 +139,40 @@ export const LIORAH_PACKAGES: Record<LiorahPackageTier, LiorahPackageInfo> = {
       'Correcciones y ajustes personalizados incluidos',
     ],
   },
+  clasica: {
+    id: 'clasica',
+    title: 'Invitación Web Clásica',
+    price: 50000,
+    priceUSD: 42,
+    priceMXN: 830,
+    summary: 'Invitación web esencial y elegante con música, GPS en Google Maps, confirmación RSVP a WhatsApp, cuenta regresiva y mesa de regalos.',
+    deliverable: 'Página web móvil propia con funciones esenciales',
+    features: [
+      'Invitación Web propia adaptada a smartphones',
+      'Ubicación GPS directa en Google Maps y Waze',
+      'Confirmación de asistencia RSVP por WhatsApp',
+      'Música de fondo y cuenta regresiva en vivo',
+      'Mesa de regalos con CBU / Alias copiable',
+      'Dress Code sugerido y acompañamiento',
+    ],
+  },
   interactive: {
     id: 'interactive',
-    title: 'Invitación Web Online',
-    price: 60000,
-    priceUSD: 50,
-    priceMXN: 990,
-    badge: 'MÁS ELEGIDA · $60.000 ARS',
-    summary: 'Nuestra invitación digital web más elegida: 100% personalizada con botones directos para GPS (Google Maps), confirmación de asistencia (WhatsApp), música, cuenta regresiva y mesa de regalos.',
-    deliverable: 'Enlace web móvil interactivo propio + botones de acción directa',
+    title: 'Invitación Web Premium',
+    price: 70000,
+    priceUSD: 58,
+    priceMXN: 1150,
+    badge: 'MÁS ELEGIDA · $70.000 ARS',
+    summary: 'Nuestra invitación digital web más elegida y completa: 100% personalizada con todas las funciones interactivas, galería de fotos, itinerario y pases VIP.',
+    deliverable: 'Página web móvil interactiva premium con todas las funciones',
     features: [
-      'Invitación Digital Web interactiva con link propio',
-      'Botón directo de confirmación WhatsApp (RSVP)',
-      'Botón GPS a Google Maps y Waze',
-      'Cuenta regresiva en vivo y música ambiental',
-      'Mesa de regalos con CBU / Alias copiable',
-      'Itinerario, dress code y galería de fotos',
+      'Video de portada para ingresar a la web (Intro animada)',
+      'Todas las funciones esenciales incluidas',
+      'Galería de fotos de alta resolución',
+      'Cronograma e itinerario paso a paso',
+      'Álbum de fotos compartido en Google Fotos',
+      'Alojamiento y hoteles recomendados',
+      '3 rondas de cambios y soporte dedicado',
     ],
   },
   animated_video: {

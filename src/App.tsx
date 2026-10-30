@@ -1,167 +1,210 @@
 import React, { useState } from 'react';
-import { Header } from './components/Header';
-import { Hero } from './components/Hero';
-import { GallerySection } from './components/GallerySection';
-import { CustomizerSection } from './components/CustomizerSection';
-import { HowItWorks } from './components/HowItWorks';
+import { PromoTopBar } from './components/PromoTopBar';
+import { StoreHeader } from './components/StoreHeader';
+import { StoreCategoriesNav, StoreCategory } from './components/StoreCategoriesNav';
+import { StoreCatalogSection, STORE_PRODUCTS } from './components/StoreCatalogSection';
+import { StoreProductItem } from './components/StoreProductCard';
+import { InvitArteFeaturesCard } from './components/InvitArteFeaturesCard';
+import { ComparisonPricingTable } from './components/ComparisonPricingTable';
+import { HowItWorksThreeSteps } from './components/HowItWorksThreeSteps';
 import { ReviewsSection } from './components/ReviewsSection';
 import { FaqSection } from './components/FaqSection';
 import { Footer } from './components/Footer';
-import { PhoneMockupPreview } from './components/PhoneMockupPreview';
-import { CheckoutModal } from './components/CheckoutModal';
-import { RealSamplesSection } from './components/RealSamplesSection';
+import { QuickCartDrawer, CartItem } from './components/QuickCartDrawer';
+import { QuickSearchModal } from './components/QuickSearchModal';
+import { PromoInfoModal } from './components/PromoInfoModal';
+import { CustomerPortalModal } from './components/CustomerPortalModal';
 import { RealSampleViewerModal } from './components/RealSampleViewerModal';
-import { PricingProposalsSection } from './components/PricingProposalsSection';
-import { FeaturesShowcaseSection } from './components/FeaturesShowcaseSection';
-import { SavingsCalculatorSection } from './components/SavingsCalculatorSection';
+import { CheckoutModal } from './components/CheckoutModal';
+import { REAL_SAMPLES, RealSampleItem } from './data/realSamples';
 import { INVITATION_CATALOG } from './data/invitations';
-import { RealSampleItem } from './data/realSamples';
-import { InvitationDesign, DesignPreferences, LiorahPackageTier } from './types';
-import { X, Sparkles, MessageCircle, Heart } from 'lucide-react';
+import { InvitationDesign, DesignPreferences, LiorahPackageTier, LIORAH_PACKAGES } from './types';
+import { MessageCircle, X } from 'lucide-react';
 
 export default function App() {
-  const [selectedDesign, setSelectedDesign] = useState<InvitationDesign>(INVITATION_CATALOG[0]);
-  const [demoModalDesign, setDemoModalDesign] = useState<InvitationDesign | null>(null);
-  const [realSampleViewerItem, setRealSampleViewerItem] = useState<RealSampleItem | null>(null);
-  const [selectedTier, setSelectedTier] = useState<LiorahPackageTier>('interactive');
-  const [checkoutData, setCheckoutData] = useState<{
-    isOpen: boolean;
+  const [selectedCategory, setSelectedCategory] = useState<StoreCategory>('todos');
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [promoModalOpen, setPromoModalOpen] = useState(false);
+  const [customerPortalOpen, setCustomerPortalOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+
+  // Cart items
+  const [cartItems, setCartItems] = useState<CartItem[]>([
+    {
+      product: STORE_PRODUCTS[0], // Greenery default
+      tier: 'interactive',
+      quantity: 1,
+    },
+  ]);
+
+  // Modals for live demo & checkout
+  const [activeRealSample, setActiveRealSample] = useState<RealSampleItem | null>(null);
+  const [checkoutModalData, setCheckoutModalData] = useState<{
     design: InvitationDesign;
     preferences: DesignPreferences;
-    initialTier?: LiorahPackageTier;
+    tier: LiorahPackageTier;
   } | null>(null);
 
-  const handleSelectAndCustomize = (design: InvitationDesign) => {
-    setSelectedDesign(design);
-    const element = document.getElementById('personalizador');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleSelectSampleToCustomize = (sample: RealSampleItem) => {
-    // Map the real sample to a matching catalog design base or set it as active
-    let matching = INVITATION_CATALOG.find((d) => d.category === sample.category);
-    if (!matching) {
-      matching = INVITATION_CATALOG[0];
-    }
-    // Create an enhanced design entry reflecting the sample
-    const customizedBase: InvitationDesign = {
-      ...matching,
-      id: `custom-from-${sample.id}`,
-      title: `Inspirado en ${sample.title}`,
-      tagline: sample.tagline,
-      paletteColors: sample.paletteColors,
-      image: sample.image,
+  // Helper to map a store product into InvitationDesign structure for checkout
+  const mapProductToDesign = (product: StoreProductItem): { design: InvitationDesign; prefs: DesignPreferences } => {
+    const baseCatalog = INVITATION_CATALOG[0];
+    const design: InvitationDesign = {
+      ...baseCatalog,
+      id: product.id,
+      title: `Invitación Página Web | ${product.name}`,
+      category: product.category === 'Boda' ? 'Bodas' : 'XV Años',
+      price: product.price,
+      image: product.phoneImage || product.coverImage || baseCatalog.image,
+      tagline: product.styleTag,
       demoData: {
-        ...matching.demoData,
-        hostsNames: sample.celebrant,
-        subtitle: sample.tagline,
+        ...baseCatalog.demoData,
+        hostsNames: product.celebrant,
+        dateFormatted: product.date,
       },
     };
-    setSelectedDesign(customizedBase);
-    setRealSampleViewerItem(null);
-    const element = document.getElementById('personalizador');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+
+    const prefs: DesignPreferences = {
+      designId: product.id,
+      designTitle: product.name,
+      eventType: product.category,
+      hostsNames: product.celebrant,
+      eventDate: product.date,
+      eventTime: '18:00 HRS',
+      ceremonyVenue: 'Parroquia / Jardín Principal',
+      ceremonyAddress: 'Buenos Aires, Argentina',
+      receptionVenue: 'Salón de Eventos & Estancia',
+      receptionAddress: 'Ruta 8 Km 54.5',
+      mapsUrl: 'https://maps.google.com',
+      dressCode: 'Elegante',
+      colorScheme: 'Verde Eucalipto & Oro',
+      typographyStyle: 'Caligrafía Clásica & Romana',
+      musicChoice: 'Vals de Ensueño / Balada Acústica',
+      specialNotes: '',
+      enabledFeatures: {
+        rsvpWhatsApp: true,
+        googleMaps: true,
+        countdown: true,
+        backgroundMusic: true,
+        giftRegistryClabe: true,
+        photoGallery: true,
+        itineraryTimeline: true,
+        dressCodeGuide: true,
+      },
+      passMode: 'single_link',
+    };
+
+    return { design, prefs };
   };
 
-  const handleStartCustomizing = () => {
-    const element = document.getElementById('personalizador');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+  const handleBuyProduct = (product: StoreProductItem, tier: LiorahPackageTier = 'interactive') => {
+    // Add or update cart item
+    setCartItems((prev) => {
+      const exists = prev.find((i) => i.product.id === product.id);
+      if (exists) {
+        return prev.map((i) => (i.product.id === product.id ? { ...i, tier } : i));
+      }
+      return [...prev, { product, tier, quantity: 1 }];
+    });
+    setCartOpen(true);
   };
 
-  const handleSelectTier = (tier: LiorahPackageTier) => {
-    setSelectedTier(tier);
-    const element = document.getElementById('personalizador');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+  const handleOpenLiveDemo = (product: StoreProductItem) => {
+    if (product.liveUrl) {
+      // Find matching real sample item or open sample viewer
+      const found = REAL_SAMPLES.find((s) => s.liveUrl === product.liveUrl);
+      if (found) {
+        setActiveRealSample(found);
+        return;
+      }
+      window.open(product.liveUrl, '_blank');
+      return;
     }
-  };
 
-  const handleExploreGallery = () => {
-    const element = document.getElementById('muestras-reales');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleProceedToCheckout = (preferences: DesignPreferences, design: InvitationDesign) => {
-    setCheckoutData({
-      isOpen: true,
-      design,
-      preferences,
-      initialTier: selectedTier,
+    // If it's a catalog design without a live domain, map to an existing sample or open viewer
+    const sample = REAL_SAMPLES[0];
+    setActiveRealSample({
+      ...sample,
+      title: product.name,
+      celebrant: product.celebrant,
+      tagline: product.styleTag,
+      image: product.phoneImage || product.coverImage || sample.image,
     });
   };
 
+  const handleOpenCheckoutFromCart = () => {
+    if (cartItems.length === 0) return;
+    const first = cartItems[0];
+    const { design, prefs } = mapProductToDesign(first.product);
+    setCartOpen(false);
+    setCheckoutModalData({
+      design,
+      preferences: prefs,
+      tier: first.tier,
+    });
+  };
+
+  const handleSelectTierFromTable = (tier: LiorahPackageTier) => {
+    const defaultProduct = STORE_PRODUCTS[0];
+    handleBuyProduct(defaultProduct, tier);
+  };
+
+  const handleCustomizeFromSample = (sample: RealSampleItem) => {
+    setActiveRealSample(null);
+    const matchingProduct = STORE_PRODUCTS.find((p) => p.liveUrl === sample.liveUrl) || STORE_PRODUCTS[0];
+    handleBuyProduct(matchingProduct, 'interactive');
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-stone-800">
-      {/* Promotional Top Trust Bar */}
-      <div className="bg-[#1C1A19] text-[#E8D8C3] py-2 px-4 text-center text-xs font-medium tracking-wide flex items-center justify-center gap-2">
-        <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-        <span>Apertura Temporada 2026: Usa el cupón <strong>LIORAH10</strong> para 10% de descuento en tu invitación web interactiva</span>
-      </div>
+    <div className="min-h-screen flex flex-col bg-[#FFFDF9] text-[#1A1A1A] antialiased">
+      {/* 1. TOP PROMOTIONAL RIBBON (Matching Page 1 of InvitArte PDF) */}
+      <PromoTopBar onOpenPromoInfo={() => setPromoModalOpen(true)} />
 
-      {/* Main Top Header */}
-      <Header onStartCustomizing={handleStartCustomizing} />
+      {/* 2. STORE HEADER with Menu, Search, Cursive Logo, Account and Cart (Page 1) */}
+      <StoreHeader
+        cartCount={cartItems.length}
+        onOpenCart={() => setCartOpen(true)}
+        onOpenSearch={() => setSearchModalOpen(true)}
+        onOpenCustomerPortal={() => setCustomerPortalOpen(true)}
+      />
 
-      {/* Main Content Sections */}
+      {/* 3. CATEGORY ICONS BAR (Boda, 15 años, Cumpleaños, Todas) (Page 1) */}
+      <StoreCategoriesNav
+        selectedCategory={selectedCategory}
+        onSelectCategory={(cat) => setSelectedCategory(cat)}
+      />
+
+      {/* MAIN STORE BODY */}
       <main className="flex-1">
-        {/* Hero Section */}
-        <Hero
-          onExploreGallery={handleExploreGallery}
-          onOpenHeroDemo={() => setDemoModalDesign(selectedDesign)}
+        {/* 4. "LOS MÁS ELEGIDOS" Product Grid with Dual-Phone Mockups (Page 1 & 2) */}
+        <StoreCatalogSection
+          selectedCategory={selectedCategory}
+          onBuyProduct={handleBuyProduct}
+          onOpenLiveDemo={handleOpenLiveDemo}
         />
 
-        {/* Real Live Samples Showcase (Customer Portfolio with Live Links) */}
-        <RealSamplesSection
-          onSelectSampleToCustomize={handleSelectSampleToCustomize}
-          onOpenSampleViewer={(sample) => setRealSampleViewerItem(sample)}
-        />
+        {/* 5. "¿QUÉ PODÉS SUMAR A TU INVITACIÓN?" (Page 2) */}
+        <InvitArteFeaturesCard />
 
-        {/* All Web Invitation Features Showcase & Interactive Suite */}
-        <FeaturesShowcaseSection />
+        {/* 6. "Elegí la opción que más se adapta a tu evento" COMPARISON TABLE (Page 3) */}
+        <ComparisonPricingTable onSelectTier={handleSelectTierFromTable} />
 
-        {/* Digital vs. Traditional Print Savings Calculator */}
-        <SavingsCalculatorSection />
+        {/* 7. "¿CÓMO FUNCIONA?" 3 Circular Steps (Page 3) */}
+        <HowItWorksThreeSteps />
 
-        {/* Pricing Proposals Grid ($60.000 ARS / $50 USD / $990 MXN) */}
-        <PricingProposalsSection onSelectTier={handleSelectTier} />
-
-        {/* Catalog Designs Gallery */}
-        <GallerySection
-          onSelectAndCustomize={handleSelectAndCustomize}
-          onOpenLiveDemo={(design) => setDemoModalDesign(design)}
-        />
-
-        {/* Customizer Section */}
-        <CustomizerSection
-          selectedDesign={selectedDesign}
-          onSelectDesign={setSelectedDesign}
-          onProceedToCheckout={handleProceedToCheckout}
-        />
-
-        {/* How It Works Section */}
-        <HowItWorks />
-
-        {/* Customer Reviews & Comments Section */}
+        {/* 8. "CLIENTES FELICES" Quotes & Testimonials (Page 6) */}
         <ReviewsSection />
 
-        {/* FAQ Section */}
+        {/* 9. FAQ Section */}
         <FaqSection />
       </main>
 
-      {/* Footer */}
+      {/* 10. STORE FOOTER with Categorías, Contacto, Legal & Botón de arrepentimiento (Page 6) */}
       <Footer />
 
-      {/* FLOATING WHATSAPP ASSISTANT BUTTON */}
+      {/* FLOATING WHATSAPP BUTTON */}
       <aside aria-label="Contacto directo por WhatsApp" className="fixed bottom-6 right-6 z-30">
         <a
-          href="https://wa.me/5491123456789?text=Hola%20LIORAH%20STUDIO!%20Quisiera%20asesoramiento%20sobre%20las%20invitaciones%20digitales%20personalizadas"
+          href="https://wa.me/5491123456789?text=Hola%20LIORAH%20STUDIO!%20Quisiera%20consultar%20por%20una%20invitación%20personalizada"
           target="_blank"
           rel="noreferrer"
           className="flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-3 text-xs font-bold text-white shadow-xl hover:bg-emerald-700 transition-all hover:scale-105"
@@ -171,52 +214,62 @@ export default function App() {
         </a>
       </aside>
 
-      {/* LIVE DEMO MODAL IN SMARTPHONE */}
-      {demoModalDesign && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="relative my-auto flex flex-col items-center">
-            {/* Close button at top right */}
-            <button
-              type="button"
-              onClick={() => setDemoModalDesign(null)}
-              className="absolute -top-10 right-0 sm:-right-10 rounded-full bg-white/20 p-2 text-white hover:bg-white/40 transition-colors cursor-pointer"
-              aria-label="Cerrar demo"
-            >
-              <X className="h-6 w-6" />
-            </button>
+      {/* QUICK CART DRAWER */}
+      <QuickCartDrawer
+        isOpen={cartOpen}
+        onClose={() => setCartOpen(false)}
+        cartItems={cartItems}
+        onUpdateTier={(productId, tier) => {
+          setCartItems((prev) =>
+            prev.map((i) => (i.product.id === productId ? { ...i, tier } : i))
+          );
+        }}
+        onRemoveItem={(productId) => {
+          setCartItems((prev) => prev.filter((i) => i.product.id !== productId));
+        }}
+        onCheckout={handleOpenCheckoutFromCart}
+      />
 
-            <div className="mb-3 text-center text-white">
-              <span className="text-[10px] tracking-widest uppercase font-semibold text-amber-300">
-                Demostración Interactiva en Vivo
-              </span>
-              <h3 className="font-display text-xl font-bold">{demoModalDesign.title}</h3>
-            </div>
-
-            <PhoneMockupPreview
-              design={demoModalDesign}
-              showInModal={true}
-              onClose={() => setDemoModalDesign(null)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* REAL SAMPLE LIVE VIEWER MODAL */}
-      {realSampleViewerItem && (
-        <RealSampleViewerModal
-          sample={realSampleViewerItem}
-          onClose={() => setRealSampleViewerItem(null)}
-          onSelectToCustomize={handleSelectSampleToCustomize}
+      {/* QUICK SEARCH MODAL */}
+      {searchModalOpen && (
+        <QuickSearchModal
+          onClose={() => setSearchModalOpen(false)}
+          onSelectProduct={(prod) => handleBuyProduct(prod)}
         />
       )}
 
-      {/* CHECKOUT & PAYMENT MODAL */}
-      {checkoutData?.isOpen && (
+      {/* PROMO INFO MODAL */}
+      <PromoInfoModal
+        isOpen={promoModalOpen}
+        onClose={() => setPromoModalOpen(false)}
+        onExplore={() => {
+          const el = document.getElementById('mas-elegidos');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }}
+      />
+
+      {/* CUSTOMER PORTAL / ORDER TRACKER MODAL */}
+      <CustomerPortalModal
+        isOpen={customerPortalOpen}
+        onClose={() => setCustomerPortalOpen(false)}
+      />
+
+      {/* REAL SAMPLE LIVE VIEWER MODAL */}
+      {activeRealSample && (
+        <RealSampleViewerModal
+          sample={activeRealSample}
+          onClose={() => setActiveRealSample(null)}
+          onSelectToCustomize={handleCustomizeFromSample}
+        />
+      )}
+
+      {/* FINAL CHECKOUT & PAYMENT MODAL */}
+      {checkoutModalData && (
         <CheckoutModal
-          design={checkoutData.design}
-          preferences={checkoutData.preferences}
-          initialTier={checkoutData.initialTier}
-          onClose={() => setCheckoutData(null)}
+          design={checkoutModalData.design}
+          preferences={checkoutModalData.preferences}
+          initialTier={checkoutModalData.tier}
+          onClose={() => setCheckoutModalData(null)}
         />
       )}
     </div>

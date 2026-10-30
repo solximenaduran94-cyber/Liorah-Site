@@ -4,11 +4,11 @@ import { ChevronDown, Heart } from 'lucide-react';
 const FAQS = [
   {
     q: '¿Cuáles son los precios de los diferentes formatos (JPG, PDF, Video y Web)?',
-    a: 'En LIORAH STUDIO contamos con 4 modalidades transparentes y accesibles: \n• Formato JPG Digital: $10.000 ARS (≈ $8 USD · $165 MXN) — imagen HD lista para compartir en WhatsApp.\n• Formato PDF Interactivo: $25.000 ARS (≈ $20 USD · $410 MXN) — documento digital artesanal con botones clickeables a ubicación y confirmación.\n• Video Animado MP4: $34.000 ARS (≈ $28 USD · $560 MXN) — video vertical Full HD con música de fondo y efectos animados para historias y WhatsApp.\n• Invitación Web Online: $60.000 ARS (≈ $50 USD · $990 MXN) — página web interactiva con link propio, GPS a Google Maps/Waze, RSVP por WhatsApp, música ambiental y mesa de regalos.',
+    a: 'En LIORAH STUDIO contamos con modalidades transparentes y accesibles: \n• Formato JPG Digital: $10.000 ARS (≈ $8 USD · $165 MXN) — imagen HD lista para compartir en WhatsApp.\n• Formato PDF Interactivo: $25.000 ARS (≈ $20 USD · $410 MXN) — documento digital artesanal con botones clickeables a ubicación y confirmación.\n• Video Animado MP4: $34.000 ARS (≈ $28 USD · $560 MXN) — video vertical Full HD con música de fondo y efectos animados para historias y WhatsApp.\n• Invitación Web Clásica: $50.000 ARS (≈ $42 USD · $830 MXN) — página web móvil con música, mapa GPS, confirmación RSVP y cuenta regresiva.\n• Invitación Web Premium: $70.000 ARS (≈ $58 USD · $1.150 MXN) — experiencia interactiva completa con galería de fotos, itinerario y pases VIP.',
   },
   {
-    q: '¿Qué incluye la Invitación Web Online de $60.000 ARS?',
-    a: 'Incluye tu propio enlace web personalizado desde cero, botones directos de GPS para Google Maps y Waze, confirmación de asistencia RSVP directa a tu WhatsApp, música ambiental de bienvenida, cuenta regresiva en vivo, cronograma de la fiesta y mesa de regalos con Alias / CBU copiable en un toque.',
+    q: '¿Qué diferencia hay entre la Invitación Web Clásica ($50.000) y Premium ($70.000)?',
+    a: 'La propuesta Clásica ($50.000 ARS) incluye lo esencial para tu evento: música de fondo, GPS con Google Maps/Waze, confirmación RSVP por WhatsApp, cuenta regresiva, dress code y mesa de regalos con CBU copiable. La propuesta Premium ($70.000 ARS, nuestra opción más elegida) suma galería de fotos de alta resolución, cronograma e itinerario paso a paso, álbum en Google Fotos, hospedajes recomendados, sugerencias de canciones y pases VIP personalizados.',
   },
   {
     q: '¿Los invitados necesitan instalar alguna aplicación para ver la invitación interactiva?',

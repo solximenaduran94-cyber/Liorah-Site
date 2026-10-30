@@ -13,6 +13,7 @@ export const PricingProposalsSection: React.FC<PricingProposalsSectionProps> = (
         return Image;
       case 'basic':
         return FileText;
+      case 'clasica':
       case 'interactive':
         return Smartphone;
       case 'animated_video':
